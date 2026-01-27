@@ -7,16 +7,17 @@ import Navbar from "../components/navbar";
 import AddServiceModal from "./AddServiceModel";
 import ServiceFilters from "./ServiceFilters";
 import ServiceGrid from "./ServiceGrid";
-
+import useAuth from "@/hooks/useAuth";
 import { ServiceItem } from "../../../types";
 
 export default function EmployeeDashboard() {
+  const { user, isLoading } = useAuth("employee");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedGridType, setSelectedGridType] = useState<string | null>(null);
   const [cartItems, setCartItems] = useState<ServiceItem[]>([]);
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isServiceLoading, setIsServiceLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
@@ -27,7 +28,7 @@ export default function EmployeeDashboard() {
 
   const fetchServices = async () => {
     try {
-      setIsLoading(true);
+      setIsServiceLoading(true);
       const res = await fetch("/api/services/");
       if (!res.ok) throw new Error(`Failed to fetch services: ${res.status}`);
       const data = await res.json();
@@ -36,7 +37,7 @@ export default function EmployeeDashboard() {
     } catch (err: any) {
       setError("Failed to load services. Please try again.");
     } finally {
-      setIsLoading(false);
+      setIsServiceLoading(false);
     }
   };
 
@@ -57,18 +58,16 @@ const handleGenerateInvoice = async () => {
   }
 
   try {
-    const token = localStorage.getItem("token"); // Or use session/auth state
-
-    if (!token) {
-      alert("🔒 Please log in first.");
-      return;
-    }
+    if (!user) {
+        alert("🔒 Please wait for login validation...");
+        return;
+      }
 
     const response = await fetch("/api/invoices", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        token,
+        
         cartItems,
       }),
     });

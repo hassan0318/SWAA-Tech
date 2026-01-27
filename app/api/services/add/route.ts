@@ -5,11 +5,11 @@ import { supabase } from '@/lib/supabaseClient'
 export async function POST(req: Request) {
   const body = await req.json()
 
-  const { grid_type, product_category, product_name, rate, quantity } = body
+  const { grid_type, product_category, product_name, rate } = body
 
   const { data, error } = await supabase
     .from('services')
-    .insert([{ grid_type, product_category, product_name, rate, quantity }])
+    .insert([{ grid_type, product_category, product_name, rate  }])
     .select()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })

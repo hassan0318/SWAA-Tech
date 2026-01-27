@@ -1,44 +1,68 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useAuth from "@/hooks/useAuth";
-import { Divide } from "lucide-react";
 
 interface ServiceItem {
-  id:string;
+  id: string;
   grid_type: string;
   product_category: string;
   product_name: string;
   rate: number;
-  quantity: number | null;
+  // quantity removed from interface
   created_at: string;
   updated_at: string;
 }
 
 export default function ClientItemDetail({ item }: { item: ServiceItem }) {
-  const {user , isLoading} = useAuth("employee");
+  const { user, isLoading } = useAuth("employee");
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState<ServiceItem>(item);
   const [loading, setLoading] = useState(false);
+
+  // Sync state if the parent item updates
+  useEffect(() => {
+    setForm(item);
+  }, [item]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+    
+    // Improved logic to allow typing decimals for Rate
+    let newValue: string | number = value;
+
+    if (name === "rate") {
+       if (value === "") {
+         newValue = ""; // Allow empty
+       } else if (value.endsWith(".")) {
+         newValue = value; // Allow trailing decimal while typing
+       } else {
+         newValue = Number(value); // Convert to number
+       }
+    }
+
     setForm({
       ...form,
-      [name]: name === "rate" || name === "quantity" ? Number(value) : value,
+      [name]: newValue,
     });
   };
 
   const handleSave = async () => {
     setLoading(true);
     try {
+      // Ensure rate is a valid number before sending
+      const payload = {
+        ...form,
+        rate: Number(form.rate)
+      };
+
       const res = await fetch("/api/services/update", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -57,10 +81,10 @@ export default function ClientItemDetail({ item }: { item: ServiceItem }) {
     }
   };
 
-  if (isLoading){
-    return <>
-    ...loading</>
+  if (isLoading) {
+    return <div>...loading</div>;
   }
+
   return (
     <div className="max-w-3xl mx-auto py-10 px-6">
       {!editMode ? (
@@ -75,9 +99,7 @@ export default function ClientItemDetail({ item }: { item: ServiceItem }) {
             <p>
               <span className="font-semibold">Rate:</span> ${item.rate}
             </p>
-            <p>
-              <span className="font-semibold">Quantity:</span> {item.quantity ?? ""}
-            </p>
+            {/* Quantity Display Removed */}
             <p>
               <span className="font-semibold">Created At:</span>{" "}
               {new Date(item.created_at).toLocaleDateString()}
@@ -99,7 +121,8 @@ export default function ClientItemDetail({ item }: { item: ServiceItem }) {
       ) : (
         <div className="bg-white shadow-md p-6 rounded-xl">
           <h2 className="text-xl font-bold mb-4 text-gray-700">Edit Item</h2>
-          
+
+          <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
           <input
             type="text"
             name="product_name"
@@ -108,7 +131,8 @@ export default function ClientItemDetail({ item }: { item: ServiceItem }) {
             placeholder="Product Name"
             className="w-full mb-3 p-2 border rounded"
           />
-          
+
+          <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
           <input
             type="text"
             name="product_category"
@@ -117,7 +141,8 @@ export default function ClientItemDetail({ item }: { item: ServiceItem }) {
             placeholder="Category"
             className="w-full mb-3 p-2 border rounded"
           />
-          
+
+          <label className="block text-sm font-medium text-gray-700 mb-1">Rate</label>
           <input
             type="number"
             name="rate"
@@ -126,16 +151,9 @@ export default function ClientItemDetail({ item }: { item: ServiceItem }) {
             placeholder="Rate"
             className="w-full mb-3 p-2 border rounded"
           />
-          
-          <input
-            type="number"
-            name="quantity"
-            value={form.quantity ?? ""}
-            onChange={handleChange}
-            placeholder="Quantity"
-            className="w-full mb-3 p-2 border rounded"
-          />
-          
+
+          {/* Quantity Input Removed */}
+
           <div className="flex gap-4">
             <button
               onClick={handleSave}
@@ -145,7 +163,10 @@ export default function ClientItemDetail({ item }: { item: ServiceItem }) {
               {loading ? "Saving..." : "Save"}
             </button>
             <button
-              onClick={() => setEditMode(false)}
+              onClick={() => {
+                setEditMode(false);
+                setForm(item); // Revert changes
+              }}
               className="px-6 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500"
             >
               Cancel

@@ -14,7 +14,7 @@ const AddServiceModal = ({ setShowAddForm, fetchServices }: AddServiceModalProps
     product_category: "",
     product_name: "",
     rate: 0,
-    quantity: null,
+    
   });
 
   const [isLoading, setIsLoading] = useState(false);
