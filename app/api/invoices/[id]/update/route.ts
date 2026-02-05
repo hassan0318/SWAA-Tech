@@ -9,54 +9,65 @@ export async function PUT(
 
   try {
     const body = await req.json();
-    const { items, total_amount } = body;
+    const { items, tax_rate, tax_amount, grand_total } = body;
 
     if (!Array.isArray(items)) {
-      console.error("Invalid items:", items);
-      return NextResponse.json({ error: "Invalid items array" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid items array" },
+        { status: 400 }
+      );
     }
 
-    // Step 1: Delete old items
+    // 1️⃣ Delete old items
     const { error: deleteError } = await supabase
       .from("invoice_items")
       .delete()
       .eq("invoice_id", invoiceId);
 
     if (deleteError) {
-      console.error("🛑 Failed deleting old items:", deleteError);
-      return NextResponse.json({ error: "Failed to delete old items" }, { status: 500 });
+      console.error("Delete error:", deleteError);
+      return NextResponse.json(
+        { error: "Failed to delete old items" },
+        { status: 500 }
+      );
     }
 
-    // Step 2: Insert updated items
-   const newItems = items.map(({ subtotal, ...rest }) => ({
-  ...rest,
-  invoice_id: invoiceId,
-}));
-
+    // 2️⃣ Insert new items WITH tax + grand total
+    const newItems = items.map((item) => ({
+      invoice_id: invoiceId,
+      service_id: item.service_id,
+      product_name: item.product_name,
+      rate: item.rate,
+      Unit: item.Unit,
+      tax_rate,
+      tax_amount,
+      grand_total,
+    }));
 
     const { error: insertError } = await supabase
       .from("invoice_items")
       .insert(newItems);
 
     if (insertError) {
-      console.error("🛑 Failed inserting items:", insertError);
-      return NextResponse.json({ error: "Failed to insert new items" }, { status: 500 });
+      console.error("Insert error:", insertError);
+      return NextResponse.json(
+        { error: "Failed to insert invoice items" },
+        { status: 500 }
+      );
     }
 
-    // Step 3: Update invoice total
-    const { error: updateError } = await supabase
+    // 3️⃣ OPTIONAL: keep invoice total in sync (you can remove later)
+    await supabase
       .from("invoices")
-      .update({ total_amount })
+      .update({ total_amount: grand_total })
       .eq("id", invoiceId);
-
-    if (updateError) {
-      console.error("🛑 Failed updating total:", updateError);
-      return NextResponse.json({ error: "Failed to update invoice total" }, { status: 500 });
-    }
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("🛑 Unexpected server error:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("Server error:", err);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

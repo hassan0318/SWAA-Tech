@@ -84,9 +84,12 @@ export default function InvoiceDetailsPage({ params }: InvoicePageProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          items: invoiceItems,
-          total_amount: invoiceInfo.total_amount,
-        }),
+  items: invoiceItems,
+  subtotal: invoiceInfo.total_amount,
+  tax_rate: taxRate,
+  tax_amount: calculatedTax,
+  grand_total: grandTotal,
+}),
       });
 
       const data = await res.json();
