@@ -69,7 +69,7 @@ export async function PUT(
       service_id: item.service_id, 
       product_name: item.product_name,
       rate: item.rate,
-      quantity: item.quantity || item.Unit || 1, // Fallback to handle whatever front-end sends
+      Unit: item.quantity || item.Unit || 1, // Fallback to handle whatever front-end sends
     }));
 
     // 3. Insert new items

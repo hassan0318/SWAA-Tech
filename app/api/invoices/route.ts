@@ -57,10 +57,10 @@ export async function POST(req: Request) {
     // I assumed 'quantity' below based on standard practice.
     const itemsToInsert = cartItems.map((item: any) => ({
       invoice_id: invoiceId,
-      service_id: item.id,          // The Link (optional/nullable)
-      product_name: item.product_name, // Snapshot Name
-      rate: item.rate,              // Snapshot Price
-      quantity: item.quantity || 1, // Actual quantity from cart
+      service_id: item.id,         
+      product_name: item.product_name, 
+      rate: item.rate,              
+      Unit: item.quantity || 1, 
     }));
 
     const { error: itemsError } = await supabase
