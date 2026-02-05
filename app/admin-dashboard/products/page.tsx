@@ -183,7 +183,7 @@ export default function AdminProductsPage() {
                     <TableCell>{p.grid_type}</TableCell>
                     <TableCell>{p.product_category}</TableCell>
                     <TableCell>{p.product_name}</TableCell>
-                    <TableCell className="text-right">${p.rate.toFixed(2)}</TableCell>
+                    <TableCell className="text-right"> {p.rate.toFixed(2)}</TableCell>
                     <TableCell className="text-right">{p.quantity ?? "-"}</TableCell>
                     <TableCell>{new Date(p.created_at).toLocaleDateString()}</TableCell>
                   </TableRow>

@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import useAuth from "@/hooks/useAuth";
 import Navbar from "../components/navbar";
 import { supabase } from "@/lib/supabaseClient";
-import { isSameMonth } from "@/components/dateHelpers";
 import {
   Table,
   TableBody,
@@ -26,7 +25,7 @@ interface Invoice {
 }
 
 export default function InvoiceTable() {
-  const { user , isLoading} = useAuth("employee");
+  const { user, isLoading } = useAuth("employee");
   const email = user?.email ?? "";
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,15 +34,11 @@ export default function InvoiceTable() {
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(
     null
   );
-  const now = new Date();
-  const currentMonthTotal = invoices
-    .filter((inv) => isSameMonth(inv.created_at, now.getFullYear(), now.getMonth()))
-    .reduce((sum, inv) => sum + inv.total_amount, 0);
 
-  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const lastMonthTotal = invoices
-    .filter((inv) => isSameMonth(inv.created_at, lastMonth.getFullYear(), lastMonth.getMonth()))
-    .reduce((sum, inv) => sum + inv.total_amount, 0);
+  // ✅ Default to current month (Format: YYYY-MM)
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    new Date().toISOString().slice(0, 7)
+  );
 
   // Fetch all invoices
   useEffect(() => {
@@ -67,6 +62,17 @@ export default function InvoiceTable() {
 
     fetchInvoices();
   }, []);
+
+  // ✅ Filter invoices based on the selected month input
+  const filteredInvoices = invoices.filter((inv) =>
+    inv.created_at.startsWith(selectedMonth)
+  );
+
+  // ✅ Calculate total for the selected month
+  const selectedMonthTotal = filteredInvoices.reduce(
+    (sum, inv) => sum + inv.total_amount,
+    0
+  );
 
   // Open modal
   const openPayModal = (id: string) => {
@@ -106,22 +112,38 @@ export default function InvoiceTable() {
       setPayingId(null);
     }
   };
-    if (loading) {
-      return (
-        <div className="min-h-screen bg-gray-50">
-          <Navbar />
-          <div className="max-w-4xl mx-auto py-8 px-4">
-            <div>Loading...</div>
-          </div>
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="max-w-4xl mx-auto py-8 px-4">
+          <div>Loading...</div>
         </div>
-      );
-    }
+      </div>
+    );
+  }
+
   return (
     <div>
       <Navbar />
+
+      {/* ✅ Container for the Month Selector */}
+      <div className="max-w-4xl mx-auto px-4 mt-6 mb-2 flex justify-end items-center gap-2">
+        <label className="font-medium text-gray-700">Select Month:</label>
+        <input
+          type="month"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-1 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
       <Table>
         <TableCaption>
-          {loading ? "Loading invoices..." : "A list of all invoices."}
+          {loading
+            ? "Loading invoices..."
+            : `Invoices for ${selectedMonth}`}
         </TableCaption>
         <TableHeader>
           <TableRow>
@@ -134,8 +156,8 @@ export default function InvoiceTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices.length > 0 ? (
-            invoices.map((invoice) => (
+          {filteredInvoices.length > 0 ? (
+            filteredInvoices.map((invoice) => (
               <TableRow key={invoice.id}>
                 <TableCell className="font-medium">
                   {invoice.invoice_number}
@@ -144,12 +166,12 @@ export default function InvoiceTable() {
                 <TableCell>{invoice.payment_method || "-"}</TableCell>
                 <TableCell>{invoice.employee_email}</TableCell>
                 <TableCell className="text-right">
-                  ${invoice.total_amount.toFixed(2)}
+                  {invoice.total_amount.toFixed(2)}
                 </TableCell>
                 <TableCell className="text-center">
                   {/* ✅ Only show pay button for creator */}
                   {invoice.payment_status !== "Paid" &&
-                    invoice.employee_email === email ? (
+                  invoice.employee_email === email ? (
                     <button
                       onClick={() => openPayModal(invoice.id)}
                       className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -168,24 +190,19 @@ export default function InvoiceTable() {
             !loading && (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-gray-500">
-                  No invoices found.
+                  No invoices found for {selectedMonth}.
                 </TableCell>
               </TableRow>
             )
           )}
         </TableBody>
-        {invoices.length > 0 && (
+        {/* ✅ Updated Footer to show Dynamic Total */}
+        {filteredInvoices.length > 0 && (
           <TableFooter>
             <TableRow>
-              <TableCell colSpan={4}>This Month</TableCell>
+              <TableCell colSpan={4}>Total ({selectedMonth})</TableCell>
               <TableCell className="text-right" colSpan={2}>
-                ${currentMonthTotal.toFixed(2)}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell colSpan={4}>Last Month</TableCell>
-              <TableCell className="text-right" colSpan={2}>
-                ${lastMonthTotal.toFixed(2)}
+                {selectedMonthTotal.toFixed(2)}
               </TableCell>
             </TableRow>
           </TableFooter>

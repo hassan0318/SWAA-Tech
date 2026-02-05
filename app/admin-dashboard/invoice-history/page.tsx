@@ -105,7 +105,7 @@ export default function AdminInvoiceTable() {
                 <TableCell>{invoice.payment_method || "-"}</TableCell>
                 <TableCell>{invoice.employee_email}</TableCell>
                 <TableCell className="text-right">
-                  ${invoice.total_amount.toFixed(2)}
+                  {invoice.total_amount.toFixed(2)}
                 </TableCell>
               </TableRow>
             ))
@@ -122,13 +122,13 @@ export default function AdminInvoiceTable() {
             <TableRow>
               <TableCell colSpan={4}>This Month</TableCell>
               <TableCell className="text-right">
-                ${currentMonthTotal.toFixed(2)}
+                {currentMonthTotal.toFixed(2)}
               </TableCell>
             </TableRow>
             <TableRow>
               <TableCell colSpan={4}>Last Month</TableCell>
               <TableCell className="text-right">
-                ${lastMonthTotal.toFixed(2)}
+                {lastMonthTotal.toFixed(2)}
               </TableCell>
             </TableRow>
           </TableFooter>

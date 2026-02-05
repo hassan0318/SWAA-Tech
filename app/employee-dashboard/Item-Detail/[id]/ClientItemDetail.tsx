@@ -97,7 +97,7 @@ export default function ClientItemDetail({ item }: { item: ServiceItem }) {
               <span className="font-semibold">Category:</span> {item.product_category}
             </p>
             <p>
-              <span className="font-semibold">Rate:</span> ${item.rate}
+              <span className="font-semibold">Rate:</span> {item.rate}
             </p>
             {/* Quantity Display Removed */}
             <p>

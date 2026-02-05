@@ -123,7 +123,7 @@ const AddServiceModal = ({ setShowAddForm, fetchServices }: AddServiceModalProps
 
             {/* Rate */}
             <div>
-              <label className="block text-sm font-medium mb-1">Rate ($) *</label>
+              <label className="block text-sm font-medium mb-1">Rate *</label>
               <input
                 type="number"
                 step="0.01"

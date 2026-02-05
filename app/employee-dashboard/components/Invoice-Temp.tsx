@@ -45,7 +45,7 @@ export default function InvoiceTemplate({
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "PKR",
     }).format(amount || 0);
 
   const formatDate = (date?: string) =>

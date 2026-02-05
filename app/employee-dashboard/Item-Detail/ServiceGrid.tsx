@@ -31,7 +31,7 @@ const ServiceGrid = ({ services, searchQuery, setSearchQuery, handleAddToCart }:
               <div className="text-sm opacity-90">{item.product_category}</div>
             </div>
             <div className="p-5">
-              <p className="text-gray-700 font-medium">Rate: ${item.rate}</p>
+              <p className="text-gray-700 font-medium">Rate:  {item.rate}</p>
               {item.quantity && <p className="text-gray-600">Qty: {item.quantity}</p>}
               <div className="flex gap-3 mt-5">
                 <Link href={`/employee-dashboard/Item-Detail/${item.id}`} className="flex-1">

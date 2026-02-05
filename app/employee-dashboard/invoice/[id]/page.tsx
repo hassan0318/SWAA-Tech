@@ -209,7 +209,7 @@ export default function InvoiceDetailsPage({ params }: InvoicePageProps) {
                         className="w-20 px-2 py-1 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
                       />
                       <span className="ml-2 text-gray-800 font-mono">
-                         x ${item.rate} = <strong>${item.subtotal.toFixed(2)}</strong>
+                         x {item.rate} = <strong>{item.subtotal.toFixed(2)}</strong>
                       </span>
                     </div>
                   </div>
@@ -235,7 +235,7 @@ export default function InvoiceDetailsPage({ params }: InvoicePageProps) {
                 {/* Subtotal */}
                 <div className="flex justify-between items-center mb-3">
                    <span className="text-gray-600 font-medium">Subtotal</span>
-                   <span className="text-xl font-semibold">${subTotal.toFixed(2)}</span>
+                   <span className="text-xl font-semibold">{subTotal.toFixed(2)}</span>
                 </div>
 
                 {/* Tax Input */}
@@ -252,7 +252,7 @@ export default function InvoiceDetailsPage({ params }: InvoicePageProps) {
                      />
                    </div>
                    <span className="text-lg font-medium text-gray-700">
-                     + ${calculatedTax.toFixed(2)}
+                     + {calculatedTax.toFixed(2)}
                    </span>
                 </div>
 
@@ -262,7 +262,7 @@ export default function InvoiceDetailsPage({ params }: InvoicePageProps) {
                 <div className="flex justify-between items-center">
                    <span className="text-gray-900 font-bold text-lg">Grand Total</span>
                    <span className="text-2xl font-bold text-green-600">
-                     ${grandTotal.toFixed(2)}
+                     {grandTotal.toFixed(2)}
                    </span>
                 </div>
              </div>
